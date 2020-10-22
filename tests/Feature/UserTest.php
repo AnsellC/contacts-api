@@ -43,5 +43,54 @@ class UserTest extends TestCase
         $response->assertStatus(422);
     }
 
+    /**
+     * @test
+     */
+    public function a_user_can_login()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->postJson('/api/login', [
+            'email' => $user->email,
+            'password' => 'password'
+        ]);
+        $response->assertStatus(200);
+    }
+
+    /**
+     * @test
+     */
+    public function an_invalid_user_cannot_login()
+    {
+        $response = $this->postJson('/api/login', [
+            'email' => 'something',
+            'password' => 'password1'
+        ]);
+        $response->assertStatus(401);
+    }
+
+    /**
+     * @test
+     */
+    public function a_user_can_get_his_credentials()
+    {
+        $user = User::factory()->create();
+
+
+        $response = $this->postJson('/api/login', [
+            'email' => $user->email,
+            'password' => 'password'
+        ]);
+
+        $token = $response->json('token');
+        $this->assertNotNull($token);
+
+        $response = $this->postJson('/api/me', [], [
+            'Authorization' => "Bearer {$token}"
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertEquals($user->toArray(), $response->json());
+    }
 
 }

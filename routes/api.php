@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\MeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AuthController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,7 +16,11 @@ use App\Http\Controllers\UserController;
 |
 */
 Route::middleware('throttle:60,1')->group(function () {
-    Route::resource('users', UserController::class);
+    Route::apiResource('users', UserController::class);
+    Route::post('/login', [AuthController::class, 'login']);
+
 });
 
-Route::middleware(['auth:api', 'throttle:60,1'])->group(function () {});
+Route::middleware(['auth:api', 'throttle:60,1'])->group(function () {
+    Route::post('/me', [AuthController::class, 'me']);
+});
